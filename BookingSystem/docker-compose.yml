@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  bookingsystem.webapi:
+    image: ${DOCKER_REGISTRY-}bookingsystemwebapi
+    build:
+      context: .
+      dockerfile: BookingSystem.WebApi/Dockerfile
+    depends_on: [bookingsystemdb, bookingsystem.identity]
+    container_name: bookingsystem.webapi
+  bookingsystem.identity:
+    image: ${DOCKER_REGISTRY-}bookingsystemidentity
+    build:
+      context: .
+      dockerfile: BookingSystem.Identity/Dockerfile
+    depends_on: [bookingsystemdb]
+    container_name: bookingsystem.identity
+  bookingsystemdb:
+    image: mcr.microsoft.com/mssql/server:2019-CU13-ubuntu-20.04
+    container_name: bookingsystemdb
+    

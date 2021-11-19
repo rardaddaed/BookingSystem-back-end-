@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  bookingsystem.webapi:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Local
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=123456
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    ports:
+      - "5000:80"
+      - "5100:443"
+    volumes:
+      - ~/.aspnet/https:/https:ro
+  bookingsystem.identity:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Local
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=123456
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    ports:
+      - "5001:80"
+      - "5101:443"
+    volumes:
+      - ~/.aspnet/https:/https:ro
+  bookingsystemdb:
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Passw0rd2021"
+    ports:
+      - "6000:1433"
+    volumes:
+      - bookingsystem-sqldata:/var/opt/mssql
+
+volumes:
+  bookingsystem-sqldata:
