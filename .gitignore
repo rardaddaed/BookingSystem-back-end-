@@ -441,4 +441,4 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-BookingSystem/BookingSystem.Domain/**/*.g.cs
+#BookingSystem/BookingSystem.Domain/**/*.g.cs
