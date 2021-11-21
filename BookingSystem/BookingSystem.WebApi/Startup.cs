@@ -19,6 +19,7 @@ using Serilog;
 using System;
 using System.IO.Compression;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace BookingSystem.WebApi
 {
@@ -68,6 +69,10 @@ namespace BookingSystem.WebApi
       services.AddDbContext<BSDbContext>(options =>
         options.UseSqlServer(Configuration.GetConnectionString(Constants.BS_DB_NAME),
           o => o.MigrationsAssembly(typeof(BSDbContext).Namespace)));
+
+      services.AddDbContext<AppIdentityDbContext>(options =>
+        options.UseSqlServer(Configuration.GetConnectionString(Constants.IDENTITY_DB_NAME),
+            o => o.MigrationsAssembly(typeof(AppIdentityDbContext).Namespace)));
 
       services.AddSignalR();
       services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);

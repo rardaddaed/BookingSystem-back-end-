@@ -27,12 +27,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingSystem.Application",
 		{067D77C0-E60F-4F92-90DD-C57BC4DDC1AC} = {067D77C0-E60F-4F92-90DD-C57BC4DDC1AC}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingSystem.Deploy", "BookingSystem.Deploy\BookingSystem.Deploy.csproj", "{55DC87BA-0CB9-462F-BF46-BF4B2AC97470}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2392FF2F-6C6C-4F4F-ABD2-70D869FAE53A} = {2392FF2F-6C6C-4F4F-ABD2-70D869FAE53A}
-		{3D3B4A78-7346-43C4-B784-7B409A8A2515} = {3D3B4A78-7346-43C4-B784-7B409A8A2515}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingSystem.Application.Test", "BookingSystem.Application.Test\BookingSystem.Application.Test.csproj", "{C1E04D61-29AC-4BCA-BD95-28953A179F11}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookingSystem.WebApi.Test", "BookingSystem.WebApi.Test\BookingSystem.WebApi.Test.csproj", "{C5F0C881-A645-4CC8-A761-0BD7A041B30D}"
@@ -76,10 +70,6 @@ Global
 		{83701291-E4B4-432A-A3C0-71E07844977C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83701291-E4B4-432A-A3C0-71E07844977C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83701291-E4B4-432A-A3C0-71E07844977C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55DC87BA-0CB9-462F-BF46-BF4B2AC97470}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55DC87BA-0CB9-462F-BF46-BF4B2AC97470}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55DC87BA-0CB9-462F-BF46-BF4B2AC97470}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55DC87BA-0CB9-462F-BF46-BF4B2AC97470}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C1E04D61-29AC-4BCA-BD95-28953A179F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1E04D61-29AC-4BCA-BD95-28953A179F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1E04D61-29AC-4BCA-BD95-28953A179F11}.Release|Any CPU.ActiveCfg = Release|Any CPU

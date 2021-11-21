@@ -19,14 +19,3 @@ services:
     ports:
       - "80:80"
       - "443:443"
-  bookingsystemdb:
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Ae8xWeo4!*EtR7"
-    ports:
-      - "1433:1433"
-    volumes:
-      - bookingsystem-sqldata:/var/opt/mssql
-
-volumes:
-  bookingsystem-sqldata:

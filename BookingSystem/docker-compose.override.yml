@@ -1,5 +1,8 @@
 version: '3.4'
 
+networks:
+  bookingsystemnetwork:
+
 services:
   bookingsystem.webapi:
     environment:
@@ -12,6 +15,8 @@ services:
       - "5100:443"
     volumes:
       - ~/.aspnet/https:/https:ro
+    networks:
+      - bookingsystemnetwork
   bookingsystem.identity:
     environment:
       - ASPNETCORE_ENVIRONMENT=Local
@@ -23,14 +28,5 @@ services:
       - "5101:443"
     volumes:
       - ~/.aspnet/https:/https:ro
-  bookingsystemdb:
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Ae8xWeo4!*EtR7"
-    ports:
-      - "6000:1433"
-    volumes:
-      - bookingsystem-sqldata:/var/opt/mssql
-
-volumes:
-  bookingsystem-sqldata:
+    networks:
+      - bookingsystemnetwork
