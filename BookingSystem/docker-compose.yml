@@ -8,11 +8,9 @@ services:
       dockerfile: BookingSystem.WebApi/Dockerfile
     depends_on: [bookingsystem.identity]
     container_name: bookingsystem.webapi
-    platform: linux
   bookingsystem.identity:
     image: ${DOCKER_REGISTRY-}bookingsystemidentity
     build:
       context: .
       dockerfile: BookingSystem.Identity/Dockerfile
     container_name: bookingsystem.identity
-    platform: linux
