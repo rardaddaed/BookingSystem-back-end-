@@ -7,26 +7,18 @@ services:
   bookingsystem.webapi:
     environment:
       - ASPNETCORE_ENVIRONMENT=Local
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=123456
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_URLS=http://+:80
     ports:
       - "5000:80"
-      - "5100:443"
-    volumes:
-      - ~/.aspnet/https:/https:ro
     networks:
       - bookingsystemnetwork
   bookingsystem.identity:
     environment:
       - ASPNETCORE_ENVIRONMENT=Local
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=123456
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_URLS=http://+:80
     ports:
       - "5001:80"
-      - "5101:443"
-    volumes:
-      - ~/.aspnet/https:/https:ro
     networks:
       - bookingsystemnetwork
+    expose:
+      - "80"

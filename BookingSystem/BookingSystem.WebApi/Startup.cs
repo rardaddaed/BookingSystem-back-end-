@@ -5,10 +5,10 @@ using BookingSystem.Core.Constants;
 using BookingSystem.Persistence;
 using BookingSystem.WebApi.Filters.Exceptions;
 using FluentValidation.AspNetCore;
+using IdentityServer4.AccessTokenValidation;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,110 +19,155 @@ using Serilog;
 using System;
 using System.IO.Compression;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Logging;
 
-namespace BookingSystem.WebApi
+namespace BookingSystem.WebApi;
+
+public partial class Startup
 {
-  public partial class Startup
+  public Startup(IConfiguration configuration)
   {
-    public Startup(IConfiguration configuration)
+    Configuration = configuration;
+  }
+
+  public IConfiguration Configuration { get; }
+
+  // This method gets called by the runtime. Use this method to add services to the container.
+  public void ConfigureServices(IServiceCollection services)
+  {
+    Log.Information($"Database: {Configuration.GetConnectionString(Constants.BS_DB_NAME)}");
+
+    services.AddRouting(options => options.LowercaseUrls = true);
+
+    #region CORS
+
+    var allowedOrigins = Configuration.GetSection("AllowedOrigins").Get<string[]>();
+
+    services.AddCors(options => options.AddPolicy("AllowedOrigins", builder =>
     {
-      Configuration = configuration;
-    }
+      builder.AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+        .WithOrigins(allowedOrigins)
+        .SetPreflightMaxAge(TimeSpan.FromSeconds(3600));
+    }));
 
-    public IConfiguration Configuration { get; }
+    #endregion CORS
 
-    // This method gets called by the runtime. Use this method to add services to the container.
-    public void ConfigureServices(IServiceCollection services)
-    {
-      Log.Information($"Database: {Configuration.GetConnectionString(Constants.BS_DB_NAME)}");
+    #region global exception filter, fluent validation
 
-      services.AddRouting(options => options.LowercaseUrls = true);
-
-      #region CORS
-
-      var allowedOrigins = Configuration.GetSection("AllowedOrigins").Get<string[]>();
-
-      services.AddCors(options => options.AddPolicy("AllowedOrigins", builder =>
+    services.AddMvc(options =>
       {
-        builder.AllowAnyHeader()
-          .AllowAnyMethod()
-          .AllowCredentials()
-          .WithOrigins(allowedOrigins)
-          .SetPreflightMaxAge(TimeSpan.FromSeconds(3600));
-      }));
+        options.Filters.Add(typeof(GlobalExceptionFilter));
+        options.ModelValidatorProviders.Clear();
+        options.EnableEndpointRouting = false;
+      })
+      .AddFluentValidation();
 
-      #endregion CORS
+    #endregion global exception filter, fluent validation
 
-      #region global exception filter, fluent validation
+    services.AddDbContext<BSDbContext>(options =>
+      options.UseSqlServer(Configuration.GetConnectionString(Constants.BS_DB_NAME),
+        o => o.MigrationsAssembly(typeof(BSDbContext).Namespace)));
 
-      services.AddMvc(options =>
+    services.AddDbContext<AppIdentityDbContext>(options =>
+      options.UseSqlServer(Configuration.GetConnectionString(Constants.IDENTITY_DB_NAME),
+        o => o.MigrationsAssembly(typeof(AppIdentityDbContext).Namespace)));
+
+    #region authentication
+
+    services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+      .AddIdentityServerAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme, options =>
+      {
+        options.Authority = "http://bookingsystem.identity";
+        options.RequireHttpsMetadata = false;
+        options.ApiName = "identity-booking-system-api";
+        options.Events = new JwtBearerEvents
         {
-          options.Filters.Add(typeof(GlobalExceptionFilter));
-          options.ModelValidatorProviders.Clear();
-          options.EnableEndpointRouting = false;
-        })
-        .AddFluentValidation();
-
-      #endregion global exception filter, fluent validation
-
-      services.AddDbContext<BSDbContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString(Constants.BS_DB_NAME),
-          o => o.MigrationsAssembly(typeof(BSDbContext).Namespace)));
-
-      services.AddDbContext<AppIdentityDbContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString(Constants.IDENTITY_DB_NAME),
-            o => o.MigrationsAssembly(typeof(AppIdentityDbContext).Namespace)));
-
-      services.AddSignalR();
-      services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
-      services.AddResponseCompression(options => { options.Providers.Add<GzipCompressionProvider>(); });
-      services.AddMemoryCache();
-      services.AddMediatR(typeof(GetAllBookingLevelsQuery));
-
-      services.AddSwaggerGen(c =>
-      {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "BookingSystem.WebApi", Version = "v1" });
+          OnAuthenticationFailed = context =>
+          {
+            Log.Error(context.Exception, $"OnAuthenticationFailed: {context.Exception.Message}");
+            return Task.CompletedTask;
+          }
+        };
       });
-    }
 
-    public void ConfigureContainer(ContainerBuilder builder)
+    #endregion authentication
+
+    services.AddSignalR();
+    services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
+    services.AddResponseCompression(options => { options.Providers.Add<GzipCompressionProvider>(); });
+    services.AddMemoryCache();
+    services.AddMediatR(typeof(GetAllBookingLevelsQuery));
+
+    services.AddSwaggerGen(c =>
     {
-      builder.Register(_ => Configuration).As<IConfiguration>();
-      builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly()).AsImplementedInterfaces();
-    }
-
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-      if (!env.IsProduction())
+      c.SwaggerDoc("v1", new OpenApiInfo { Title = "BookingSystem.WebApi", Version = "v1" });
+      c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
       {
-        app.UseDeveloperExceptionPage();
-        app.UseSwagger();
-        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BookingSystem.WebApi v1"));
-      }
-      else
-      {
-        app.UseHsts();
-      }
-
-      app.UseHttpsRedirection();
-      app.UseCors("AllowedOrigins");
-      app.UseResponseCompression();
-      app.UseSerilogRequestLogging();
-      app.UseMvc();
-
-      // If the app calls UseStaticFiles, place UseStaticFiles before UseRouting.
-      // It's important that you place the Authentication and Authorization middleware between UseRouting and UseEndPoints .
-      // Any middleware that appears after the UseRouting() call will know which endpoint will run eventually.
-      // Any middleware that appears before the UseRouting() call won't know which endpoint will run eventually.
-      app.UseRouting();
-      app.UseAuthorization();
-
-      app.UseEndpoints(endpoints =>
-      {
-        endpoints.MapHub<BookingHub>("/booking-hub");
+        In = ParameterLocation.Header,
+        BearerFormat = "JWT",
+        Description = "JWT token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer"
       });
+      c.AddSecurityRequirement(new OpenApiSecurityRequirement
+      {
+        {
+          new OpenApiSecurityScheme
+          {
+            Reference = new OpenApiReference
+            {
+              Type = ReferenceType.SecurityScheme,
+              Id = "Bearer"
+            }
+          },
+          new string[] { }
+        }
+      });
+    });
+  }
+
+  public void ConfigureContainer(ContainerBuilder builder)
+  {
+    builder.Register(_ => Configuration).As<IConfiguration>();
+    builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly()).AsImplementedInterfaces();
+  }
+
+  // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+  public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+  {
+    if (!env.IsProduction())
+    {
+      app.UseDeveloperExceptionPage();
+      app.UseSwagger();
+      app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BookingSystem.WebApi v1"));
+      IdentityModelEventSource.ShowPII = true;
     }
+    else
+    {
+      app.UseHsts();
+    }
+    
+    app.UseCors("AllowedOrigins");
+    app.UseResponseCompression();
+    app.UseSerilogRequestLogging();
+
+    // If the app calls UseStaticFiles, place UseStaticFiles before UseRouting.
+    // It's important that you place the Authentication and Authorization middleware between UseRouting and UseEndPoints .
+    // Any middleware that appears after the UseRouting() call will know which endpoint will run eventually.
+    // Any middleware that appears before the UseRouting() call won't know which endpoint will run eventually.
+    app.UseRouting();
+    // UseAuthentication() must appear before UseMvc()
+    // UseAuthorization() must appear after UseMvc()
+    app.UseAuthentication();
+    app.UseMvc();
+    app.UseAuthorization();
+    
+
+    app.UseEndpoints(endpoints => { endpoints.MapHub<BookingHub>("/booking-hub"); });
   }
 }

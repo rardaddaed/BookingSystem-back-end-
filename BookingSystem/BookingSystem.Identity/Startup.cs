@@ -43,6 +43,17 @@ public class Startup
       options.Events.RaiseInformationEvents = true;
       options.Events.RaiseFailureEvents = true;
       options.Events.RaiseSuccessEvents = true;
+      switch (_env.EnvironmentName)
+      {
+        case "Production":
+          break;
+        case "Development":
+          options.IssuerUri = "";
+          break;
+        default:
+          options.IssuerUri = "http://bookingsystem.identity";
+          break;
+      }
     });
 
     if (!_env.IsProduction())

@@ -6,5 +6,7 @@
     public const string IDENTITY_DB_NAME = "IdentityDatabase";
     public const string ENVIRONMENT_VARIABLE_NAME = "ASPNETCORE_ENVIRONMENT";
     public const string DEFAULT_ENVIRONMENT_NAME = "Local";
+    public const string IDENTITY_SERVER_ISSUER = "IdentityServer:Issuer";
+    public const string IDENTITY_SERVER_APINAME = "IdentityServer:ApiName";
   }
 }

@@ -15,7 +15,7 @@ namespace BookingSystem.WebApi.Controllers
     }
 
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize]
     [ProducesResponseType(typeof(IEnumerable<BookingLevelDto>), 200)]
     public async Task<ActionResult<IEnumerable<BookingLevelDto>>> GetAll()
     {
