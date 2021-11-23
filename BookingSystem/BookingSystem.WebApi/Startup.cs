@@ -25,7 +25,7 @@ using Microsoft.IdentityModel.Logging;
 
 namespace BookingSystem.WebApi;
 
-public partial class Startup
+public class Startup
 {
   public Startup(IConfiguration configuration)
   {
@@ -81,9 +81,10 @@ public partial class Startup
     services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
       .AddIdentityServerAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme, options =>
       {
-        options.Authority = "http://bookingsystem.identity";
+        options.Authority = Configuration.GetValue<string>(Constants.AUTHORIZATION_ISSUER);
         options.RequireHttpsMetadata = false;
-        options.ApiName = "identity-booking-system-api";
+        options.ApiName = Configuration.GetValue<string>(Constants.AUTHORIZATION_AUDIENCE);
+        
         options.Events = new JwtBearerEvents
         {
           OnAuthenticationFailed = context =>
@@ -95,6 +96,13 @@ public partial class Startup
       });
 
     #endregion authentication
+
+    services.AddAuthorization(options =>
+    {
+      options.AddPolicy("User", policy => policy.RequireClaim("role", "user"));
+      options.AddPolicy("BookingAdmin", policy => policy.RequireClaim("role", "bookingadmin"));
+      options.AddPolicy("ConfigAdmin", policy => policy.RequireClaim("role", "configadmin"));
+    });
 
     services.AddSignalR();
     services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
