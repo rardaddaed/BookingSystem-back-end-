@@ -11,3 +11,5 @@ pipelines:
           - chmod +x docker-compose-dependencies.sh
           - ./docker-compose-dependencies.sh
           - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+          - docker-compose --env-file ./BookingSystem/.env.dev -f ./BookingSystem/docker-compose.yml -f ./BookingSystem/docker-compose.development.yml -p BookingSystem build
+          - docker-compose --env-file ./BookingSystem/.env.dev -f ./BookingSystem/docker-compose.yml -f ./BookingSystem/docker-compose.development.yml -p BookingSystem push
