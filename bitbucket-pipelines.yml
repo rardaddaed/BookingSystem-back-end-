@@ -1,0 +1,24 @@
+options:
+  docker: true
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          image: mcr.microsoft.com/dotnet/aspnet:6.0
+          script:
+            - cd ./BookingSystem/BookingSystem.Application.Test
+            - dotnet restore
+            - dotnet build
+            - dotnet test
+  branches:
+    development:
+      - step:
+          image: docker:stable
+          deployment: Development
+          script:
+            - chmod +x docker-compose-dependencies.sh
+            - ./docker-compose-dependencies.sh
+            - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            - docker-compose --env-file ./BookingSystem/.env.dev -f ./BookingSystem/docker-compose.yml -f ./BookingSystem/docker-compose.development.yml -p BookingSystem build
+            - docker-compose --env-file ./BookingSystem/.env.dev -f ./BookingSystem/docker-compose.yml -f ./BookingSystem/docker-compose.development.yml -p BookingSystem push
