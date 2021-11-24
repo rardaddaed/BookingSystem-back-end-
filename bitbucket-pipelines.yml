@@ -9,6 +9,7 @@ pipelines:
       - step:
           script:
             - cd ./BookingSystem/BookingSystem.Application.Test
+            - dotnet --version
             - dotnet restore
             - dotnet build
             - dotnet test
