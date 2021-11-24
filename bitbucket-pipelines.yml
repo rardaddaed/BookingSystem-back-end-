@@ -8,6 +8,7 @@ pipelines:
           image: mcr.microsoft.com/dotnet/aspnet:6.0
           script:
             - cd ./BookingSystem/BookingSystem.Application.Test
+            - dotnet --version
             - dotnet restore
             - dotnet build
             - dotnet test
