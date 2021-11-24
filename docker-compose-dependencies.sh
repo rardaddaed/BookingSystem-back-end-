@@ -2,6 +2,8 @@
 
 set -eu
 
+apk add --no-cache build-base
+
 # Add python pip and bash
 apk add --no-cache py-pip bash
 
