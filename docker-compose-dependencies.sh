@@ -3,7 +3,7 @@
 set -eu
 
 apk add --no-cache build-base
-apk add --no-cache python3
+apk add --no-cache python3-dev
 
 # Add python pip and bash
 apk add --no-cache py-pip bash
