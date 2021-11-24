@@ -8,11 +8,5 @@ pipelines:
     - step:
         deployment: Test
         script:
-          - set -eu
-          - apk add --no-cache py-pip bash
-          - pip install --no-cache-dir docker-compose
-          - docker-compose -v
+          - docker-compose-dependencies.sh
           - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-          - 
-          - docker-compose run -T client /usr/local/src/test.sh
-          - docker-compose down
