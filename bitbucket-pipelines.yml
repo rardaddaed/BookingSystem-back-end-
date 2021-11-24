@@ -8,5 +8,5 @@ pipelines:
     - step:
         deployment: Test
         script:
-          - docker-compose-dependencies.sh
+          - ./docker-compose-dependencies.sh
           - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
