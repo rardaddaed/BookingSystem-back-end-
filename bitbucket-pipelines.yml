@@ -1,3 +1,5 @@
+image: docker:latest
+
 options:
   docker: true
 
@@ -5,7 +7,6 @@ pipelines:
   pull-requests:
     '**':
       - step:
-          image: mcr.microsoft.com/dotnet/aspnet:6.0
           script:
             - cd ./BookingSystem/BookingSystem.Application.Test
             - dotnet restore
