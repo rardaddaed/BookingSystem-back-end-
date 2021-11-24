@@ -2,13 +2,7 @@
 
 set -eu
 
-apk add --no-cache build-base
-apk add --no-cache python3-dev
-apk add --no-cache libffi-dev
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.1.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
-# Add python pip and bash
-apk add --no-cache py-pip bash
-
-# Install docker-compose via pip
-pip install --no-cache-dir docker-compose
 docker-compose -v
