@@ -7,7 +7,10 @@ pipelines:
       - step:
           image: mcr.microsoft.com/dotnet/aspnet:6.0
           script:
-            - echo 'hello'
+            - cd ./BookingSystem/BookingSystem.Application.Test
+            - dotnet restore
+            - dotnet build
+            - dotnet test
   branches:
     development:
       - step:
