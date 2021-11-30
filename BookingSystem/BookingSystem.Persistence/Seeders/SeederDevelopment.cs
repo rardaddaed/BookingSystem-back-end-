@@ -1,8 +1,9 @@
-﻿namespace BookingSystem.Persistence.Seeders;
-
-public class SeederDevelopment : BaseSeeder
+﻿namespace BookingSystem.Persistence.Seeders
 {
-  public SeederDevelopment(BSDbContext dbContext) : base(dbContext)
+  public class SeederDevelopment : BaseSeeder
   {
+    public SeederDevelopment(BSDbContext dbContext) : base(dbContext)
+    {
+    }
   }
 }

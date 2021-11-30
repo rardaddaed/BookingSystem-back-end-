@@ -6,35 +6,36 @@ using Microsoft.AspNetCore.Identity;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BookingSystem.Identity.Services;
-
-public sealed class ProfileService : IProfileService
+namespace BookingSystem.Identity.Services
 {
-  private readonly IUserClaimsPrincipalFactory<AppUser> _userClaimsPrincipalFactory;
-  private readonly UserManager<AppUser> _userManager;
-
-  public ProfileService(IUserClaimsPrincipalFactory<AppUser> userClaimsPrincipalFactory,
-    UserManager<AppUser> userManager)
+  public sealed class ProfileService : IProfileService
   {
-    _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
-    _userManager = userManager;
-  }
+    private readonly IUserClaimsPrincipalFactory<AppUser> _userClaimsPrincipalFactory;
+    private readonly UserManager<AppUser> _userManager;
 
-  public async Task GetProfileDataAsync(ProfileDataRequestContext context)
-  {
-    var sub = context.Subject.GetSubjectId();
-    var user = await _userManager.FindByIdAsync(sub);
-    var userClaims = await _userClaimsPrincipalFactory.CreateAsync(user);
+    public ProfileService(IUserClaimsPrincipalFactory<AppUser> userClaimsPrincipalFactory,
+      UserManager<AppUser> userManager)
+    {
+      _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
+      _userManager = userManager;
+    }
 
-    var claims = userClaims.Claims.ToList();
+    public async Task GetProfileDataAsync(ProfileDataRequestContext context)
+    {
+      var sub = context.Subject.GetSubjectId();
+      var user = await _userManager.FindByIdAsync(sub);
+      var userClaims = await _userClaimsPrincipalFactory.CreateAsync(user);
 
-    context.IssuedClaims = claims;
-  }
+      var claims = userClaims.Claims.ToList();
 
-  public async Task IsActiveAsync(IsActiveContext context)
-  {
-    var sub = context.Subject.GetSubjectId();
-    var user = await _userManager.FindByIdAsync(sub);
-    context.IsActive = user != null;
+      context.IssuedClaims = claims;
+    }
+
+    public async Task IsActiveAsync(IsActiveContext context)
+    {
+      var sub = context.Subject.GetSubjectId();
+      var user = await _userManager.FindByIdAsync(sub);
+      context.IsActive = user != null;
+    }
   }
 }
