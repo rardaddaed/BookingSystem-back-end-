@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.9'
 
 services:
   bookingsystem.webapi:
@@ -6,11 +6,18 @@ services:
     build:
       context: .
       dockerfile: BookingSystem.WebApi/Dockerfile
-    depends_on: [bookingsystem.identity]
+    depends_on: [bookingsystem.identity, bookingsystem.db]
     container_name: bookingsystem.webapi
   bookingsystem.identity:
     image: ${DOCKER_REGISTRY-}bookingsystemidentity${DOCKER_ENV}
     build:
       context: .
       dockerfile: BookingSystem.Identity/Dockerfile
+    depends_on: [bookingsystem.db]
     container_name: bookingsystem.identity
+  bookingsystem.db:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: bookingsystem.db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Ae8xWeo4!*EtR7
