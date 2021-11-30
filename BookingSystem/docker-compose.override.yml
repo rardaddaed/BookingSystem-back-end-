@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.9'
 
 networks:
   bookingsystemnetwork:
@@ -22,3 +22,10 @@ services:
       - bookingsystemnetwork
     expose:
       - "80"
+  bookingsystem.db:
+    ports:
+      - "6000:1433"
+    volumes:
+      - ./DockerDbVolumes:/var/opt/mssql/data
+    networks:
+      - bookingsystemnetwork
