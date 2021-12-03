@@ -6,6 +6,12 @@ namespace BookingSystem.Domain.Entities
 {
   public class BookingLevel : BaseEntity
   {
+    public BookingLevel()
+    {
+      BookingTeamAreas = new List<BookingTeamArea>();
+      BookingObjects = new List<BookingObject>();
+    }
+
     [Key]
     public Guid BookingLevelId { get; set; }
 
@@ -17,7 +23,7 @@ namespace BookingSystem.Domain.Entities
     public int MaxBooking { get; set; }
     public bool Locked { get; set; }
 
-    public virtual ICollection<BookingTeamArea> BookingTeamAreas { get; set; }
-    public virtual ICollection<BookingObject> BookingObjects { get; set; }
+    public virtual ICollection<BookingTeamArea> BookingTeamAreas { get; private set; }
+    public virtual ICollection<BookingObject> BookingObjects { get; private set; }
   }
 }
