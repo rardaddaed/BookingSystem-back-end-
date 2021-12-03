@@ -6,6 +6,11 @@ namespace BookingSystem.Domain.Entities
 {
   public class BookingTeamArea : BaseEntity
   {
+    public BookingTeamArea()
+    {
+      BookingObjects = new List<BookingObject>();
+    }
+
     [Key]
     public Guid BookingTeamAreaId { get; set; }
 
@@ -14,7 +19,7 @@ namespace BookingSystem.Domain.Entities
     public string Coords { get; set; }
     public bool Locked { get; set; }
 
-    public virtual ICollection<BookingObject> BookingObjects { get; set; }
+    public virtual ICollection<BookingObject> BookingObjects { get; private set; }
     public virtual BookingLevel BookingLevel { get; set; }
   }
 }
