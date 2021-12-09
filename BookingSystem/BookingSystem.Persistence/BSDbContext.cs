@@ -15,6 +15,7 @@ namespace BookingSystem.Persistence
     public virtual DbSet<BookingTeamArea> BookingTeamAreas { get; set; }
     public virtual DbSet<BookingObject> BookingObjects { get; set; }
     public virtual DbSet<BookingObjectType> BookingObjectTypes { get; set; }
+    public virtual DbSet<BookingHistory> BookingHistories { get; set; }
 
     #endregion DbSets
 
