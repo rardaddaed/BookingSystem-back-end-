@@ -2,11 +2,17 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using BookingSystem.Domain.Enums;
+using System.Collections.Generic;
 
 namespace BookingSystem.Domain.Entities
 {
   public class BookingObject : BaseEntity
   {
+    public BookingObject()
+    {
+      BookingHistories = new List<BookingHistory>();
+    }
+
     [Key]
     public Guid BookingObjectId { get; set; }
 
@@ -19,9 +25,10 @@ namespace BookingSystem.Domain.Entities
     public Guid? BookingTeamAreaId { get; set; }
     public string Name { get; set; }
     public string Coords { get; set; }
-    public bool Locked { get; set; }
+    public bool Locked { get; set; } // removed?                                                                                                                                                                                                                              
 
     public virtual BookingLevel BookingLevel { get; set; }
     public virtual BookingTeamArea BookingTeamArea { get; set; }
+    public virtual ICollection<BookingHistory> BookingHistories { get; private set; }
   }
 }
