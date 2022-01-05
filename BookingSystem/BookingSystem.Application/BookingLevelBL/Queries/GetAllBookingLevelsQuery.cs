@@ -28,5 +28,6 @@ namespace BookingSystem.Application.BookingLevelBL.Queries
         .Select(BookingLevelMapper.ProjectToDto)
         .ToArrayAsync(cancellationToken);
     }
+
   }
 }
