@@ -38,7 +38,7 @@ namespace BookingSystem.WebApi.Filters.Exceptions
 
       // all other types of exceptions
 
-      if (exception is BookingSystemException bookingSystemException)
+      if (exception is BaseBookingSystemException bookingSystemException)
       {
         statusCode = (int)bookingSystemException.StatusCode;
         content = bookingSystemException.GetContent();
