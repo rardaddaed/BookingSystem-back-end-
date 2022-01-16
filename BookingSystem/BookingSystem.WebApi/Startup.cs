@@ -22,6 +22,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
+using AutoMapper;
+using BookingSystem.Domain;
 
 namespace BookingSystem.WebApi
 {
@@ -104,6 +106,7 @@ namespace BookingSystem.WebApi
         options.AddPolicy("ConfigAdmin", policy => policy.RequireClaim("role", "configadmin"));
       });
 
+      services.AddAutoMapper(typeof(MappingProfile));
       services.AddSignalR();
       services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
       services.AddResponseCompression(options => { options.Providers.Add<GzipCompressionProvider>(); });

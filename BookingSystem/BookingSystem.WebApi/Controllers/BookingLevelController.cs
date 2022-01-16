@@ -32,28 +32,28 @@ namespace BookingSystem.WebApi.Controllers
     [ProducesResponseType(typeof(BookingLevelDto), 200)]
     public async Task<ActionResult<BookingLevelDto>> GetById(Guid bookingLevelId)
     {
-      return Ok(await _mediator.Send(new GetBookingLevelByIdQuery(bookingLevelId)));
+      return Ok(await _mediator.Send(new GetBookingLevelByIdQuery { BookingLevelId = bookingLevelId}));
     }
 
     [HttpPost]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(typeof(BookingLevelDto), 200)]
-    public async Task<ActionResult<BookingLevelDto>> Create([FromBody] CreateBookingLevelCommand command)
+    public async Task<ActionResult<BookingLevelDto>> Create([FromBody] CreateBookingLevelDto commandDto)
     {
-      return Ok(await _mediator.Send(command));
+      return Ok(await _mediator.Send(new CreateBookingLevelCommand(commandDto)));
     }
 
     [Route("{bookingLevelId}")]
     [HttpPut]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(typeof(BookingLevelDto), 200)]
-    public async Task<ActionResult<BookingLevelDto>> Update([FromBody] UpdateBookingLevelCommand command, Guid bookingLevelId)
+    public async Task<ActionResult<BookingLevelDto>> Update([FromBody] UpdateBookingLevelDto commandDto, Guid bookingLevelId)
     {
-      if(command.bookingLevelId != bookingLevelId)
+      if(commandDto.bookingLevelId != bookingLevelId)
       {
         return BadRequest();
       }
-      return Ok(await _mediator.Send(command));
+      return Ok(await _mediator.Send(new UpdateBookingLevelCommand(commandDto)));
     }
 
     [Route("{bookingLevelId}")]
@@ -62,7 +62,7 @@ namespace BookingSystem.WebApi.Controllers
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> Delete(Guid bookingLevelId)
     {
-      await _mediator.Send(new DeleteBookingLevelCommand(bookingLevelId));
+      await _mediator.Send(new DeleteBookingLevelCommand { BookingLevelId = bookingLevelId});
       return NoContent();
     }
   }

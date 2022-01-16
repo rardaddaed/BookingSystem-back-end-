@@ -1,4 +1,6 @@
-﻿using BookingSystem.Application.Infrastructure;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using BookingSystem.Application.Infrastructure;
 using BookingSystem.Domain.Extensions;
 using BookingSystem.Domain.Models;
 using BookingSystem.Persistence;
@@ -16,31 +18,28 @@ namespace BookingSystem.Application.BookingLevelBL.Queries
 {
   public class GetBookingLevelByIdQuery : IRequest<BookingLevelDto>
   {
-
-    public Guid bookingLevelId;
-    public GetBookingLevelByIdQuery(Guid bookingLevelId)
-    {
-      this.bookingLevelId = bookingLevelId;
-    }
+    public Guid BookingLevelId { get; init; }
   }
 
   public class GetBookingLevelByIdQueryHandler : BaseHandler, IRequestHandler<GetBookingLevelByIdQuery, BookingLevelDto>
   {
-    public GetBookingLevelByIdQueryHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IMapper _mapper;
+    public GetBookingLevelByIdQueryHandler(BSDbContext dbContext, IMapper mapper) : base(dbContext)
     {
+      _mapper = mapper;
     }
 
     public async Task<BookingLevelDto> Handle(GetBookingLevelByIdQuery request, CancellationToken cancellationToken)
-    { 
-        var result = (await _dbContext.BookingLevels
-        .FirstOrDefaultAsync(x => x.BookingLevelId == request.bookingLevelId, cancellationToken))
-        .AdaptToDto();
+    {
+      var bookinglevel = await _dbContext.BookingLevels
+      .FirstOrDefaultAsync(x => x.BookingLevelId == request.BookingLevelId, cancellationToken);
 
-      if (result == null)
+      if (bookinglevel == null)
       {
-        throw new BookingSystemException<Guid>("Booking level not found", request.bookingLevelId);
+        throw new BookingSystemException<Guid>("Booking level not found", request.BookingLevelId);
       }
 
+      var result = _mapper.Map<BookingLevelDto>(bookinglevel);
       return result;
     }
   }
