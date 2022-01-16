@@ -1,4 +1,6 @@
-﻿using BookingSystem.Application.Infrastructure;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using BookingSystem.Application.Infrastructure;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Extensions;
 using BookingSystem.Domain.Models;
@@ -13,40 +15,31 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
 {
   public class CreateBookingLevelCommand : IRequest<BookingLevelDto>
   {
-    public string Name { get; set; }
-    public string Alias { get; set; }
-    public string BlueprintUrl { get; set; }
-    public int? BlueprintWidth { get; set; }
-    public int? BlueprintHeight { get; set; }
-    public int MaxBooking { get; set; }
-    public bool Locked { get; set; }
-
+    public CreateBookingLevelDto CreateBookingLevelDto { get; set; }
+    public CreateBookingLevelCommand(CreateBookingLevelDto createBookingLevelDto)
+    {
+      CreateBookingLevelDto = createBookingLevelDto;
+    }
   }
 
   public class CreateBookingLevelCommandHandler : BaseHandler, IRequestHandler<CreateBookingLevelCommand, BookingLevelDto>
   {
-    public CreateBookingLevelCommandHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IMapper _mapper;
+    public CreateBookingLevelCommandHandler(BSDbContext dbContext, IMapper mapper) : base(dbContext)
     {
+      _mapper = mapper;
     }
 
     public async Task<BookingLevelDto> Handle(CreateBookingLevelCommand request, CancellationToken cancellationToken)
     {
-      var newBookingLevel = new BookingLevel()
-      {
-        BookingLevelId = Guid.NewGuid(),
-        Name = request.Name,
-        Alias = request.Alias,
-        BlueprintUrl = request.BlueprintUrl,
-        BlueprintWidth = request.BlueprintWidth,
-        BlueprintHeight = request.BlueprintHeight,
-        MaxBooking = request.MaxBooking,
-        Locked = request.Locked
-      };
+      var newBookingLevel = _mapper.Map<BookingLevel>(request.CreateBookingLevelDto);
 
       _dbContext.BookingLevels.Add(newBookingLevel);
       await _dbContext.SaveChangesAsync(cancellationToken);
 
-      return newBookingLevel.AdaptToDto();
+      var result = _mapper.Map<BookingLevelDto>(newBookingLevel);
+
+      return result;
     }
   }
 
@@ -54,17 +47,15 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
   {
     public CreateBookingLevelCommandValidator()
     {
-      RuleFor(x => x.Name)
+      RuleFor(x => x.CreateBookingLevelDto.Name)
         .NotEmpty()
         .MaximumLength(200);
-      RuleFor(x => x.Alias)
+      RuleFor(x => x.CreateBookingLevelDto.Alias)
         .MaximumLength(100);
-      RuleFor(x => x.BlueprintUrl)
+      RuleFor(x => x.CreateBookingLevelDto.BlueprintUrl)
         .MaximumLength(200);
-      RuleFor(x => x.MaxBooking)
+      RuleFor(x => x.CreateBookingLevelDto.MaxBooking)
         .GreaterThan(0);
-      RuleFor(x => x.Locked)
-          .Equal(false);
     }
   }
 }

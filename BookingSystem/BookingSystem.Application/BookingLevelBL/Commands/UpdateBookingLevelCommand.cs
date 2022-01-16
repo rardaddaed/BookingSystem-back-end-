@@ -1,4 +1,6 @@
-﻿using BookingSystem.Application.Infrastructure;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using BookingSystem.Application.Infrastructure;
 using BookingSystem.Core.Exceptions;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Extensions;
@@ -16,55 +18,49 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
 {
   public class UpdateBookingLevelCommand: IRequest<BookingLevelDto>
   {
-    public Guid bookingLevelId { get; init; }
-    public string Name { get; init; }
-    public string Alias { get; init; }
-    public string BlueprintUrl { get; init; }
-    public int? BlueprintWidth { get; init; }
-    public int? BlueprintHeight { get; init; }
-    public int MaxBooking { get; init; }
-    public bool Locked { get; init; }
-
+    public UpdateBookingLevelDto UpdateBookingLevelDto { get; set; }
+    public UpdateBookingLevelCommand(UpdateBookingLevelDto updateBookingLevelDto)
+    {
+      UpdateBookingLevelDto = updateBookingLevelDto;  
+    }
   }
 
   public class UpdateBookingLevelCommandHandler : BaseHandler, IRequestHandler<UpdateBookingLevelCommand, BookingLevelDto>
   {
-    public UpdateBookingLevelCommandHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IMapper _mapper;
+    public UpdateBookingLevelCommandHandler(BSDbContext dbContext, IMapper mapper) : base(dbContext)
     {
+      _mapper = mapper;
     }
     public async Task<BookingLevelDto> Handle(UpdateBookingLevelCommand request, CancellationToken cancellationToken)
     {
-      var updatedBookingLevel = await _dbContext.BookingLevels
-        .FirstOrDefaultAsync(x => x.BookingLevelId == request.bookingLevelId, cancellationToken);
+      var bookingLevel = await _dbContext.BookingLevels
+        .FirstOrDefaultAsync(x => x.BookingLevelId == request.UpdateBookingLevelDto.bookingLevelId, cancellationToken);
 
-      if (updatedBookingLevel == null)
+      if (bookingLevel == null)
       {
-        throw new BookingSystemException<Guid>("Booking level not found", request.bookingLevelId);
+        throw new BookingSystemException<Guid>("Booking level not found", request.UpdateBookingLevelDto.bookingLevelId);
       }
 
-      updatedBookingLevel.Name = request.Name;
-      updatedBookingLevel.Alias = request.Alias;
-      updatedBookingLevel.BlueprintUrl = request.BlueprintUrl;
-      updatedBookingLevel.BlueprintHeight = request.BlueprintHeight;
-      updatedBookingLevel.BlueprintWidth = request.BlueprintWidth;
-      updatedBookingLevel.MaxBooking = request.MaxBooking;
-      updatedBookingLevel.Locked = request.Locked;
+      var newBookingLevel = _mapper.Map<BookingLevel>(request.UpdateBookingLevelDto);
+
+      var result = _mapper.Map<BookingLevelDto>(newBookingLevel);
 
       await _dbContext.SaveChangesAsync(cancellationToken);
-      return updatedBookingLevel.AdaptToDto();
+      return result;
     }
     public class UpdateBookingLevelCommandValidator : AbstractValidator<UpdateBookingLevelCommand>
     {
       public UpdateBookingLevelCommandValidator()
       {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.UpdateBookingLevelDto.Name)
           .NotEmpty()
           .MaximumLength(200);
-        RuleFor(x => x.Alias)
+        RuleFor(x => x.UpdateBookingLevelDto.Alias)
           .MaximumLength(100);
-        RuleFor(x => x.BlueprintUrl)
+        RuleFor(x => x.UpdateBookingLevelDto.BlueprintUrl)
           .MaximumLength(200);
-        RuleFor(x => x.MaxBooking)
+        RuleFor(x => x.UpdateBookingLevelDto.MaxBooking)
           .GreaterThan(0);
       }
     }

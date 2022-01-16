@@ -16,11 +16,7 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
 {
   public class DeleteBookingLevelCommand : IRequest
   {
-    public Guid bookingLevelId;
-    public DeleteBookingLevelCommand(Guid bookingLevelId)
-    {
-      this.bookingLevelId = bookingLevelId;
-    }
+    public Guid BookingLevelId { get; init; }
   }
 
   public class DeleteBookingLevelCommandHandler : BaseHandler, IRequestHandler<DeleteBookingLevelCommand>
@@ -32,11 +28,11 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
     public async Task<Unit> Handle(DeleteBookingLevelCommand request, CancellationToken cancellationToken)
     {
       var bookingLevel = await _dbContext.BookingLevels
-        .FirstOrDefaultAsync(x => x.BookingLevelId == request.bookingLevelId, cancellationToken);
+        .FirstOrDefaultAsync(x => x.BookingLevelId == request.BookingLevelId, cancellationToken);
 
       if (bookingLevel == null)
       {
-        throw new BookingSystemException<Guid>("Booking level not found", request.bookingLevelId);
+        throw new BookingSystemException<Guid>("Booking level not found", request.BookingLevelId);
       }
       _dbContext.BookingLevels.Remove(bookingLevel);
       await _dbContext.SaveChangesAsync(cancellationToken);
