@@ -16,6 +16,10 @@ namespace BookingSystem.Domain
       CreateMap<BookingLevel, BookingLevelDto>();
       CreateMap<CreateBookingLevelDto, BookingLevel>();
       CreateMap<UpdateBookingLevelDto, BookingLevel>();
+
+      CreateMap<BookingTeamArea, BookingTeamAreaDto>();
+      CreateMap<CreateBookingTeamAreaDto, BookingTeamArea>();
+      CreateMap<UpdateBookingTeamAreaDto, BookingTeamArea>();
     }
   }
 }

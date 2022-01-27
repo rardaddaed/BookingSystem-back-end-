@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Dapper;
 using AutoMapper.QueryableExtensions;
 using BookingSystem.Application.Infrastructure;
 using BookingSystem.Domain.Extensions;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingLevelBL.Queries
 {
@@ -17,24 +19,19 @@ namespace BookingSystem.Application.BookingLevelBL.Queries
   {
   }
 
-  public class GetAllBookingLevelsQueryHandler : BaseHandler, IRequestHandler<GetAllBookingLevelsQuery, IEnumerable<BookingLevelDto>>
+  public class GetAllBookingLevelsQueryHandler : IRequestHandler<GetAllBookingLevelsQuery, IEnumerable<BookingLevelDto>>
   {
-    private readonly IMapper _mapper;
-
-    public GetAllBookingLevelsQueryHandler(BSDbContext dbContext, IMapper mapper) : base(dbContext)
+    private readonly IBookingLevelRepository _bookingLevelRepository;
+    public GetAllBookingLevelsQueryHandler(IBookingLevelRepository bookingLevelRepository)
     {
-      _mapper = mapper;
+      _bookingLevelRepository = bookingLevelRepository;
     }
 
     public async Task<IEnumerable<BookingLevelDto>> Handle(GetAllBookingLevelsQuery request, CancellationToken cancellationToken)
     {
-      var bookingLevels = await _dbContext.BookingLevels
-        .OrderByDescending(x => x.Alias)
-        .ToArrayAsync(cancellationToken);
 
-      var result = _mapper.Map<BookingLevelDto[]>(bookingLevels);
+      return await _bookingLevelRepository.GetAll();
 
-      return result;
     }
 
   }

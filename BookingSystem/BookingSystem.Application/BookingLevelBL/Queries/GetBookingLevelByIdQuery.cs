@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using BookingSystem.Core.Exceptions;
+using Dapper;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingLevelBL.Queries
 {
@@ -21,26 +23,18 @@ namespace BookingSystem.Application.BookingLevelBL.Queries
     public Guid BookingLevelId { get; init; }
   }
 
-  public class GetBookingLevelByIdQueryHandler : BaseHandler, IRequestHandler<GetBookingLevelByIdQuery, BookingLevelDto>
+  public class GetBookingLevelByIdQueryHandler : IRequestHandler<GetBookingLevelByIdQuery, BookingLevelDto>
   {
-    private readonly IMapper _mapper;
-    public GetBookingLevelByIdQueryHandler(BSDbContext dbContext, IMapper mapper) : base(dbContext)
+    private readonly IBookingLevelRepository _bookingLevelRepository;
+    public GetBookingLevelByIdQueryHandler(IBookingLevelRepository bookingLevelRepository)
     {
-      _mapper = mapper;
+      _bookingLevelRepository = bookingLevelRepository;
     }
 
     public async Task<BookingLevelDto> Handle(GetBookingLevelByIdQuery request, CancellationToken cancellationToken)
     {
-      var bookinglevel = await _dbContext.BookingLevels
-      .FirstOrDefaultAsync(x => x.BookingLevelId == request.BookingLevelId, cancellationToken);
+      return await _bookingLevelRepository.GetByBookingLevelId(request.BookingLevelId);
 
-      if (bookinglevel == null)
-      {
-        throw new BookingSystemException<Guid>("Booking level not found", request.BookingLevelId);
-      }
-
-      var result = _mapper.Map<BookingLevelDto>(bookinglevel);
-      return result;
     }
   }
 }

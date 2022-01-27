@@ -1,4 +1,7 @@
-﻿using BookingSystem.Application.Infrastructure;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Dapper;
+using BookingSystem.Application.Infrastructure;
 using BookingSystem.Core.Exceptions;
 using BookingSystem.Domain.Extensions;
 using BookingSystem.Domain.Models;
@@ -10,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingTeamAreaBL.Queries
 {
@@ -18,32 +22,18 @@ namespace BookingSystem.Application.BookingTeamAreaBL.Queries
     public Guid BookingTeamAreaId { get; init; }
   }
 
-  public class GetBookingTeamAreaByIdQueryHandler : BaseHandler, IRequestHandler<GetBookingTeamAreaByIdQuery, BookingTeamAreaDto>
+  public class GetBookingTeamAreaByIdQueryHandler : IRequestHandler<GetBookingTeamAreaByIdQuery, BookingTeamAreaDto>
   {
-    public GetBookingTeamAreaByIdQueryHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IBookingTeamAreaRepository _bookingTeamAreaRepository;
+    public GetBookingTeamAreaByIdQueryHandler(IBookingTeamAreaRepository bookingTeamAreaRepository)
     {
+      _bookingTeamAreaRepository = bookingTeamAreaRepository;
     }
 
     public async Task<BookingTeamAreaDto> Handle(GetBookingTeamAreaByIdQuery request, CancellationToken cancellationToken)
     {
-      var result = await _dbContext.BookingTeamAreas
-        .Where(x => x.BookingTeamAreaId == request.BookingTeamAreaId)
-        .Select(x => new BookingTeamAreaDto
-        {
-          BookingTeamAreaId = x.BookingTeamAreaId,
-          BookingLevelId = x.BookingLevelId,
-          Name = x.Name,
-          Coords = x.Coords,
-          Locked = x.Locked
-        })
-        .FirstOrDefaultAsync(cancellationToken);
+      return await _bookingTeamAreaRepository.GetByBookingTeamAreaId(request.BookingTeamAreaId);
 
-      if (result == null)
-      {
-        throw new BookingSystemException<Guid>("Booking team area not found", request.BookingTeamAreaId);
-      }
-
-      return result;
     }
   }
 }

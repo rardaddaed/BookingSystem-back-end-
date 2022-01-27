@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Dapper;
 using BookingSystem.Application.Infrastructure;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Extensions;
@@ -10,6 +11,9 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingLevelBL.Commands
 {
@@ -22,24 +26,21 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
     }
   }
 
-  public class CreateBookingLevelCommandHandler : BaseHandler, IRequestHandler<CreateBookingLevelCommand, BookingLevelDto>
+  public class CreateBookingLevelCommandHandler : IRequestHandler<CreateBookingLevelCommand, BookingLevelDto>
   {
-    private readonly IMapper _mapper;
-    public CreateBookingLevelCommandHandler(BSDbContext dbContext, IMapper mapper) : base(dbContext)
+    private readonly IBookingLevelRepository _bookingLevelRepository;
+    public CreateBookingLevelCommandHandler(IBookingLevelRepository bookingLevelRepository)
     {
-      _mapper = mapper;
+      _bookingLevelRepository = bookingLevelRepository;
     }
 
     public async Task<BookingLevelDto> Handle(CreateBookingLevelCommand request, CancellationToken cancellationToken)
     {
-      var newBookingLevel = _mapper.Map<BookingLevel>(request.CreateBookingLevelDto);
+      var bookingLevelId = Guid.NewGuid();
 
-      _dbContext.BookingLevels.Add(newBookingLevel);
-      await _dbContext.SaveChangesAsync(cancellationToken);
+      await _bookingLevelRepository.CreateBookingLevel(request.CreateBookingLevelDto, bookingLevelId);
 
-      var result = _mapper.Map<BookingLevelDto>(newBookingLevel);
-
-      return result;
+      return await _bookingLevelRepository.GetByBookingLevelId(bookingLevelId);
     }
   }
 

@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using AutoMapper;
 using BookingSystem.Domain;
+using BookingSystem.Repository;
 
 namespace BookingSystem.WebApi
 {
@@ -145,7 +146,8 @@ namespace BookingSystem.WebApi
     public void ConfigureContainer(ContainerBuilder builder)
     {
       builder.Register(_ => Configuration).As<IConfiguration>();
-      builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly()).AsImplementedInterfaces();
+      builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly()).AsImplementedInterfaces().InstancePerLifetimeScope();
+      builder.RegisterModule<RepositoryModule>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

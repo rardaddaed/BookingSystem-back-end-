@@ -4,12 +4,15 @@ using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Extensions;
 using BookingSystem.Domain.Models;
 using BookingSystem.Persistence;
+using Dapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BookingSystem.Repository;
 
 
 namespace BookingSystem.Application.BookingTeamAreaBL.Commands
@@ -20,25 +23,26 @@ namespace BookingSystem.Application.BookingTeamAreaBL.Commands
 
   }
 
-  public class DeleteBookingTeamAreaCommandHandler : BaseHandler, IRequestHandler<DeleteBookingTeamAreaCommand>
+  public class DeleteBookingTeamAreaCommandHandler :  IRequestHandler<DeleteBookingTeamAreaCommand>
   {
-    public DeleteBookingTeamAreaCommandHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IBookingTeamAreaRepository _bookingTeamAreaRepository;
+    public DeleteBookingTeamAreaCommandHandler(IBookingTeamAreaRepository bookingTeamAreaRepository)
     {
-
+      _bookingTeamAreaRepository = bookingTeamAreaRepository;
     }
     public async Task<Unit> Handle(DeleteBookingTeamAreaCommand request, CancellationToken cancellationToken)
     {
-      var bookingTeamArea = await _dbContext.BookingTeamAreas
-        .FirstOrDefaultAsync(x => x.BookingTeamAreaId == request.BookingTeamAreaId, cancellationToken);
+      var bookingTeamArea = await _bookingTeamAreaRepository.GetByBookingTeamAreaId(request.BookingTeamAreaId);
 
       if (bookingTeamArea == null)
       {
         throw new BookingSystemException<Guid>("Booking team area not found", request.BookingTeamAreaId);
       }
-      _dbContext.BookingTeamAreas.Remove(bookingTeamArea);
-      await _dbContext.SaveChangesAsync(cancellationToken);
+
+      await _bookingTeamAreaRepository.DeleteBookingTeamArea(request.BookingTeamAreaId);
 
       return Unit.Value;
+
     }
   }
 }

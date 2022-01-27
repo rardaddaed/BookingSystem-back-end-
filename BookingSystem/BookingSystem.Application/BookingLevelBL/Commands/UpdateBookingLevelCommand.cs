@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Dapper;
 using BookingSystem.Application.Infrastructure;
 using BookingSystem.Core.Exceptions;
 using BookingSystem.Domain.Entities;
@@ -12,7 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Linq;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingLevelBL.Commands
 {
@@ -25,44 +27,40 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
     }
   }
 
-  public class UpdateBookingLevelCommandHandler : BaseHandler, IRequestHandler<UpdateBookingLevelCommand, BookingLevelDto>
+  public class UpdateBookingLevelCommandHandler : IRequestHandler<UpdateBookingLevelCommand, BookingLevelDto>
   {
-    private readonly IMapper _mapper;
-    public UpdateBookingLevelCommandHandler(BSDbContext dbContext, IMapper mapper) : base(dbContext)
+    private readonly IBookingLevelRepository _bookingLevelRepository;
+    public UpdateBookingLevelCommandHandler(IBookingLevelRepository bookingLevelRepository)
     {
-      _mapper = mapper;
+      _bookingLevelRepository = bookingLevelRepository; 
     }
     public async Task<BookingLevelDto> Handle(UpdateBookingLevelCommand request, CancellationToken cancellationToken)
     {
-      var bookingLevel = await _dbContext.BookingLevels
-        .FirstOrDefaultAsync(x => x.BookingLevelId == request.UpdateBookingLevelDto.bookingLevelId, cancellationToken);
+      var bookingLevel = await _bookingLevelRepository.GetByBookingLevelId(request.UpdateBookingLevelDto.BookingLevelId);
 
       if (bookingLevel == null)
       {
-        throw new BookingSystemException<Guid>("Booking level not found", request.UpdateBookingLevelDto.bookingLevelId);
+        throw new BookingSystemException<Guid>("Booking level not found", request.UpdateBookingLevelDto.BookingLevelId);
       }
 
-      var newBookingLevel = _mapper.Map<BookingLevel>(request.UpdateBookingLevelDto);
+      await _bookingLevelRepository.UpdateBookingLevel(request.UpdateBookingLevelDto);
 
-      var result = _mapper.Map<BookingLevelDto>(newBookingLevel);
-
-      await _dbContext.SaveChangesAsync(cancellationToken);
-      return result;
+      return await _bookingLevelRepository.GetByBookingLevelId(request.UpdateBookingLevelDto.BookingLevelId);
     }
-    public class UpdateBookingLevelCommandValidator : AbstractValidator<UpdateBookingLevelCommand>
+  }
+  public class UpdateBookingLevelCommandValidator : AbstractValidator<UpdateBookingLevelCommand>
+  {
+    public UpdateBookingLevelCommandValidator()
     {
-      public UpdateBookingLevelCommandValidator()
-      {
-        RuleFor(x => x.UpdateBookingLevelDto.Name)
-          .NotEmpty()
-          .MaximumLength(200);
-        RuleFor(x => x.UpdateBookingLevelDto.Alias)
-          .MaximumLength(100);
-        RuleFor(x => x.UpdateBookingLevelDto.BlueprintUrl)
-          .MaximumLength(200);
-        RuleFor(x => x.UpdateBookingLevelDto.MaxBooking)
-          .GreaterThan(0);
-      }
+      RuleFor(x => x.UpdateBookingLevelDto.Name)
+        .NotEmpty()
+        .MaximumLength(200);
+      RuleFor(x => x.UpdateBookingLevelDto.Alias)
+        .MaximumLength(100);
+      RuleFor(x => x.UpdateBookingLevelDto.BlueprintUrl)
+        .MaximumLength(200);
+      RuleFor(x => x.UpdateBookingLevelDto.MaxBooking)
+        .GreaterThan(0);
     }
   }
 }

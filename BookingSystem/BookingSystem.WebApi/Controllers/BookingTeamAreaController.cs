@@ -37,28 +37,25 @@ namespace BookingSystem.WebApi.Controllers
       return Ok(await _mediator.Send(new GetBookingTeamAreaByIdQuery { BookingTeamAreaId = bookingTeamAreaId }));
     }
 
+    [Route("create")]
     [HttpPost]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(typeof(BookingTeamAreaDto), 200)]
-    public async Task<ActionResult<BookingTeamAreaDto>> Create([FromBody] CreateBookingTeamAreaCommand command)
+    public async Task<ActionResult<BookingTeamAreaDto>> Create([FromBody] CreateBookingTeamAreaDto commandDto)
     {
-      return Ok(await _mediator.Send(command));
+      return Ok(await _mediator.Send(new CreateBookingTeamAreaCommand(commandDto)));
     }
 
-    [Route("{bookingTeamAreaId}")]
+    [Route("update")]
     [HttpPut]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(typeof(BookingTeamAreaDto), 200)]
-    public async Task<ActionResult<BookingTeamAreaDto>> Update([FromBody] UpdateBookingTeamAreaCommand command, Guid bookingTeamAreaId)
+    public async Task<ActionResult<BookingTeamAreaDto>> Update([FromBody] UpdateBookingTeamAreaDto commandDto)
     {
-      if (command.BookingTeamAreaId != bookingTeamAreaId)
-      {
-        return BadRequest();
-      }
-      return Ok(await _mediator.Send(command));
+      return Ok(await _mediator.Send(new UpdateBookingTeamAreaCommand(commandDto)));
     }
 
-    [Route("{bookingTeamAreaId}")]
+    [Route("delete/{bookingTeamAreaId}")]
     [HttpDelete]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

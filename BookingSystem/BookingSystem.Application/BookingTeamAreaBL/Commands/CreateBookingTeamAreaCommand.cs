@@ -1,4 +1,7 @@
-﻿using BookingSystem.Application.Infrastructure;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Dapper;
+using BookingSystem.Application.Infrastructure;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Extensions;
 using BookingSystem.Domain.Models;
@@ -8,64 +11,51 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingTeamAreaBL.Commands
 {
   public class CreateBookingTeamAreaCommand : IRequest<BookingTeamAreaDto>
   {
-    public Guid BookingLevelId { get; init; }
-    public string Name { get; init; }
-    public string Coords { get; init; }
-    public bool Locked { get; init; }
+    public CreateBookingTeamAreaDto CreateBookingTeamAreaDto { get; set; }
+    public CreateBookingTeamAreaCommand(CreateBookingTeamAreaDto createBookingTeamAreaDto)
+    {
+      CreateBookingTeamAreaDto = createBookingTeamAreaDto;
+    }
   }
 
-  public class CreateBookingTeamAreaCommandHandler : BaseHandler, IRequestHandler<CreateBookingTeamAreaCommand, BookingTeamAreaDto>
+  public class CreateBookingTeamAreaCommandHandler : IRequestHandler<CreateBookingTeamAreaCommand, BookingTeamAreaDto>
   {
-    public CreateBookingTeamAreaCommandHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IBookingTeamAreaRepository _bookingTeamAreaRepository;
+    public CreateBookingTeamAreaCommandHandler(IBookingTeamAreaRepository bookingTeamAreaRepository)
     {
+      _bookingTeamAreaRepository = bookingTeamAreaRepository;
     }
 
     public async Task<BookingTeamAreaDto> Handle(CreateBookingTeamAreaCommand request, CancellationToken cancellationToken)
     {
-      var newBookingTeamArea = new BookingTeamArea()
-      {
-        BookingTeamAreaId = Guid.NewGuid(),
-        BookingLevelId = request.BookingLevelId,
-        Name = request.Name,
-        Coords = request.Coords,
-        Locked = request.Locked
-      };
+      var bookingTeamAreaId = Guid.NewGuid();
+      
+      await _bookingTeamAreaRepository.CreateBookingTeamArea(request.CreateBookingTeamAreaDto, bookingTeamAreaId);
 
-      _dbContext.BookingTeamAreas.Add(newBookingTeamArea);
-      await _dbContext.SaveChangesAsync(cancellationToken);
-
-      var newBookingTeamAreaDto = new BookingTeamAreaDto()
-      {
-        BookingTeamAreaId = newBookingTeamArea.BookingTeamAreaId,
-        BookingLevelId = newBookingTeamArea.BookingLevelId,
-        Name = newBookingTeamArea.Name,
-        Coords = newBookingTeamArea.Coords,
-        Locked = newBookingTeamArea.Locked
-      };
-
-      return newBookingTeamAreaDto;
+      return await _bookingTeamAreaRepository.GetByBookingTeamAreaId(bookingTeamAreaId);
     }
-
-    public class CreateBookingTeamAreaCommandValidator : AbstractValidator<CreateBookingTeamAreaCommand>
+    }
+  public class CreateBookingTeamAreaCommandValidator : AbstractValidator<CreateBookingTeamAreaCommand>
+  {
+    public CreateBookingTeamAreaCommandValidator()
     {
-      public CreateBookingTeamAreaCommandValidator()
-      {
-        // TODO: check if bookingLevelId exists in database
-        RuleFor(x => x.BookingLevelId)
-          .NotNull()
-          .NotEqual(Guid.Empty);
-        RuleFor(x => x.Name)
-          .NotEmpty()
-          .MaximumLength(200);
-        RuleFor(x => x.Coords)
-          .MaximumLength(1000);
-      }
+      // TODO: check if bookingLevelId exists in database
+      RuleFor(x => x.CreateBookingTeamAreaDto.BookingLevelId)
+        .NotNull()
+        .NotEqual(Guid.Empty);
+      RuleFor(x => x.CreateBookingTeamAreaDto.Name)
+        .NotEmpty()
+        .MaximumLength(200);
+      RuleFor(x => x.CreateBookingTeamAreaDto.Coords)
+        .MaximumLength(1000);
     }
   }
 }

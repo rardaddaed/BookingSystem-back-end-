@@ -35,6 +35,7 @@ namespace BookingSystem.WebApi.Controllers
       return Ok(await _mediator.Send(new GetBookingLevelByIdQuery { BookingLevelId = bookingLevelId}));
     }
 
+    [Route("create")]
     [HttpPost]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(typeof(BookingLevelDto), 200)]
@@ -43,20 +44,20 @@ namespace BookingSystem.WebApi.Controllers
       return Ok(await _mediator.Send(new CreateBookingLevelCommand(commandDto)));
     }
 
-    [Route("{bookingLevelId}")]
+    [Route("update")]
     [HttpPut]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(typeof(BookingLevelDto), 200)]
     public async Task<ActionResult<BookingLevelDto>> Update([FromBody] UpdateBookingLevelDto commandDto, Guid bookingLevelId)
     {
-      if(commandDto.bookingLevelId != bookingLevelId)
+      if(commandDto.BookingLevelId != bookingLevelId)
       {
         return BadRequest();
       }
       return Ok(await _mediator.Send(new UpdateBookingLevelCommand(commandDto)));
     }
 
-    [Route("{bookingLevelId}")]
+    [Route("delete/{bookingLevelId}")]
     [HttpDelete]
     [Authorize(Policy = "ConfigAdmin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

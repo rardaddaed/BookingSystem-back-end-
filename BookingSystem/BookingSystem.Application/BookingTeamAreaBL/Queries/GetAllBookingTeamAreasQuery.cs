@@ -1,4 +1,6 @@
-﻿using BookingSystem.Application.Infrastructure;
+﻿using AutoMapper;
+using Dapper;
+using BookingSystem.Application.Infrastructure;
 using BookingSystem.Domain.Extensions;
 using BookingSystem.Domain.Models;
 using BookingSystem.Persistence;
@@ -8,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingTeamAreaBL.Queries
 {
@@ -15,25 +18,17 @@ namespace BookingSystem.Application.BookingTeamAreaBL.Queries
   {
   }
 
-  public class GetAllBookingTeamAreasQueryHandler : BaseHandler, IRequestHandler<GetAllBookingTeamAreasQuery, IEnumerable<BookingTeamAreaDto>>
+  public class GetAllBookingTeamAreasQueryHandler : IRequestHandler<GetAllBookingTeamAreasQuery, IEnumerable<BookingTeamAreaDto>>
   {
-    public GetAllBookingTeamAreasQueryHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IBookingTeamAreaRepository _bookingTeamAreaRepository;
+    public GetAllBookingTeamAreasQueryHandler(IBookingTeamAreaRepository bookingTeamAreaRepository)
     {
+      _bookingTeamAreaRepository = bookingTeamAreaRepository;
     }
 
     public async Task<IEnumerable<BookingTeamAreaDto>> Handle(GetAllBookingTeamAreasQuery request, CancellationToken cancellationToken)
     {
-      var result = await _dbContext.BookingTeamAreas
-        .OrderByDescending(x => x.Name)
-        .Select(x => new BookingTeamAreaDto {
-          BookingTeamAreaId = x.BookingTeamAreaId,
-          BookingLevelId = x.BookingLevelId,
-          Name = x.Name,
-          Coords = x.Coords,
-          Locked = x.Locked
-        })
-        .ToArrayAsync(cancellationToken);
-      return result;
+      return await _bookingTeamAreaRepository.GetAll();
     }
   }
 }

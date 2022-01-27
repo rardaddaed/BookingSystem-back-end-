@@ -1,4 +1,5 @@
-﻿using BookingSystem.Application.Infrastructure;
+﻿using Dapper;
+using BookingSystem.Application.Infrastructure;
 using BookingSystem.Core.Exceptions;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Domain.Extensions;
@@ -10,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Linq;
+using BookingSystem.Repository;
 
 namespace BookingSystem.Application.BookingLevelBL.Commands
 {
@@ -19,23 +21,23 @@ namespace BookingSystem.Application.BookingLevelBL.Commands
     public Guid BookingLevelId { get; init; }
   }
 
-  public class DeleteBookingLevelCommandHandler : BaseHandler, IRequestHandler<DeleteBookingLevelCommand>
+  public class DeleteBookingLevelCommandHandler : IRequestHandler<DeleteBookingLevelCommand>
   {
-    public DeleteBookingLevelCommandHandler(BSDbContext dbContext) : base(dbContext)
+    private readonly IBookingLevelRepository _bookingLevelRepository;
+    public DeleteBookingLevelCommandHandler(IBookingLevelRepository bookingLevelRepository)
     {
-
+      _bookingLevelRepository = bookingLevelRepository;
     }
     public async Task<Unit> Handle(DeleteBookingLevelCommand request, CancellationToken cancellationToken)
     {
-      var bookingLevel = await _dbContext.BookingLevels
-        .FirstOrDefaultAsync(x => x.BookingLevelId == request.BookingLevelId, cancellationToken);
+      var bookingLevel = await _bookingLevelRepository.GetByBookingLevelId(request.BookingLevelId);
 
       if (bookingLevel == null)
       {
         throw new BookingSystemException<Guid>("Booking level not found", request.BookingLevelId);
       }
-      _dbContext.BookingLevels.Remove(bookingLevel);
-      await _dbContext.SaveChangesAsync(cancellationToken);
+
+      await _bookingLevelRepository.DeleteBookingLevel(request.BookingLevelId);
 
       return Unit.Value;
     }

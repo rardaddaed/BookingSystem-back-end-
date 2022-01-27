@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DockerDbVolumes", "DockerDbVolumes", "{5F95995D-3341-405D-9982-2E474FA2CF5C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingSystem.Repository", "BookingSystem.Repository\BookingSystem.Repository.csproj", "{EF3230EF-701D-4607-9297-50CE978B6CC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +91,10 @@ Global
 		{C1B88509-ED82-4674-906E-32270A8AF5E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1B88509-ED82-4674-906E-32270A8AF5E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1B88509-ED82-4674-906E-32270A8AF5E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF3230EF-701D-4607-9297-50CE978B6CC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF3230EF-701D-4607-9297-50CE978B6CC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF3230EF-701D-4607-9297-50CE978B6CC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF3230EF-701D-4607-9297-50CE978B6CC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
