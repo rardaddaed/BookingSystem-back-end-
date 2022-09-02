@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="FluentValidation" Version="10.3.6" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookingSystem.Domain\BookingSystem.Domain.csproj" />
+    <ProjectReference Include="..\BookingSystem.Persistence\BookingSystem.Persistence.csproj" />
+    <ProjectReference Include="..\BookingSystem.Repository\BookingSystem.Repository.csproj" />
+  </ItemGroup>
+
+</Project>
